@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: es-clientecdtdigital
+    project: sat
+  name: es-clientecdtdigital
+  namespace: develop
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: es-clientecdtdigital
+  template:
+    metadata:
+      labels:
+        app: es-clientecdtdigital
+    spec:     
+      containers:
+      - name : es-clientecdtdigital
+        image: crautomicrosdeveastus2001.azurecr.io/es-clientecdtdigital:$(Build.BuildId)
+        imagePullPolicy: "Always"
+        ports:
+        - containerPort: 8080
+          protocol: TCP
+#      imagePullSecrets:
+#      - name: secretregistrydev
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 0
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: es-clientecdtdigital
+  namespace: develop
+  labels:
+    app: es-clientecdtdigital
+    project: sat
+spec:
+  type: LoadBalancer
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+  selector:
+    app: es-clientecdtdigital
